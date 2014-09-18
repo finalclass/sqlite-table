@@ -11,7 +11,7 @@ class SQLiteTable {
   private _tableName:string;
 
   constructor(private db:sqlite3.Database) {
-
+    
   }
 
   public all(next:(err?:Error)=>void):void;
@@ -93,7 +93,8 @@ class SQLiteTable {
 
   public get tableName():string {
     if (!this._tableName) {
-      throw new Error('Table name is not specified');
+      logError('tableName is not specified');
+      throw new Error('tableName is not specified');
     }
     return this._tableName;
   }

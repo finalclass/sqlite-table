@@ -85,7 +85,8 @@ var SQLiteTable = (function () {
     Object.defineProperty(SQLiteTable.prototype, "tableName", {
         get: function () {
             if (!this._tableName) {
-                throw new Error('Table name is not specified');
+                logError('tableName is not specified');
+                throw new Error('tableName is not specified');
             }
             return this._tableName;
         },
