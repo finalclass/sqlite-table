@@ -1,0 +1,27 @@
+{
+  "name": "sqlite-table",
+  "version": "0.0.0",
+  "description": "SQLiteTable class for sqlite3 module",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node spec/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:finalclass/sqlite-table.git"
+  },
+  "keywords": [
+    "sqlite3",
+    "db",
+    "table"
+  ],
+  "author": "Szymon Wygnański <s@finalclass.net> (http://finalclass.net/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/finalclass/sqlite-table/issues"
+  },
+  "homepage": "https://github.com/finalclass/sqlite-table",
+  "dependencies": {
+    "sqlite3": "~2.2.7"
+  }
+}
