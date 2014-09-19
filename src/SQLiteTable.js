@@ -67,6 +67,12 @@ var SQLiteTable = (function () {
         this.db.run(sql, objVars, next);
     };
 
+    SQLiteTable.prototype.remove = function (id, next) {
+        this.db.run('DELETE FROM ' + this.getTableName() + ' WHERE id=?', id, function (err) {
+            next(err, this.changes === 1);
+        });
+    };
+
     SQLiteTable.prototype.getObjVars = function (obj) {
         var objVars = {};
 

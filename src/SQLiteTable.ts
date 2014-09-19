@@ -77,6 +77,12 @@ class SQLiteTable {
     this.db.run(sql, objVars, next);
   }
 
+  public remove(id:string, next:(err?:Error, isSuccess?:boolean)=>void):void {
+    this.db.run('DELETE FROM ' + this.getTableName() + ' WHERE id=?', id, function (err) {
+      next(err, this.changes === 1);
+    });
+  }
+
   private getObjVars(obj):any {
     var objVars:any = {};
 

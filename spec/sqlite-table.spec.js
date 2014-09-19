@@ -56,7 +56,7 @@ describe('SQLiteTable', function () {
           expect(result[0].firstName).toBe('Jaś');
           next();
         });
-      })
+      });
     });
   });
 
@@ -77,6 +77,19 @@ describe('SQLiteTable', function () {
               next();
             });
           });
+        });
+      });
+    });
+  });
+
+  it('removes', function (next) {
+    db.run('INSERT INTO user(firstName, lastName) VALUES(?,?)', 'Jan', 'Kowalski', function () {
+      table.remove(1, function (err, isSuccess) {
+        expect(isSuccess).toBeTruthy();
+        expect(err).toBeFalsy();
+        db.get('SELECT * from user', function (err, record) {
+          expect(record).toBeUndefined();
+          next();
         });
       });
     });

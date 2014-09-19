@@ -16,6 +16,7 @@ declare module "sqlite-table" {
     public find(params:any, next:(err:Error, result:any)=>void):void;
     public insert(data:any, next:(err?:Error, id?:string)=>void):void;
     public update(data:any, next:(err?:Error)=>void):void;
+    public remove(id:string, next:(err?:Error, isSuccess?:boolean)=>void):void;
     private getObjVars(obj):any;
     private getSQLSelectStmt(params:any):{sql:string; objVars:any};
     public tableName:string;
