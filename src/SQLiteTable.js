@@ -5,8 +5,8 @@ var log = debug('sqlite-table');
 var logError = debug('sqlite-table:error');
 
 var SQLiteTable = (function () {
-    function SQLiteTable(db) {
-        this.db = db;
+    function SQLiteTable(_db) {
+        this._db = _db;
     }
     SQLiteTable.prototype.all = function (params, next) {
         if (typeof params === 'function') {
@@ -84,11 +84,15 @@ var SQLiteTable = (function () {
 
     Object.defineProperty(SQLiteTable.prototype, "tableName", {
         get: function () {
-            if (!this._tableName) {
-                logError('tableName is not specified');
-                throw new Error('tableName is not specified');
-            }
-            return this._tableName;
+            throw new Error('tableName is not specified, override public get tableName():string method');
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(SQLiteTable.prototype, "db", {
+        get: function () {
+            return this._db;
         },
         enumerable: true,
         configurable: true

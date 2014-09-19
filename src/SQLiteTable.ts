@@ -8,14 +8,12 @@ var logError = debug('sqlite-table:error');
 
 class SQLiteTable {
 
-  private _tableName:string;
-
-  constructor(private db:sqlite3.Database) {
+  constructor(private _db:sqlite3.Database) {
     
   }
 
-  public all(next:(err?:Error)=>void):void;
-  public all(params?:any, next?:(err?:Error)=>void):void {
+  public all(next:(err:Error, result:any[])=>void):void;
+  public all(params?:any, next?:(err:Error, result:any[])=>void):void {
     if (typeof params === 'function') {
       next = params;
       params = {};
@@ -25,8 +23,8 @@ class SQLiteTable {
     this.db.all(stmt.sql, stmt.objVars, next);
   }
 
-  public find(params:string, next:(err?:Error)=>void):void;
-  public find(params:any, next:(err?:Error)=>void):void {
+  public find(params:string, next:(err:Error, result:any)=>void):void;
+  public find(params:any, next:(err:Error, result:any)=>void):void {
     var typeofParams:string = typeof params;
     if (typeofParams === 'string' || typeofParams === 'number') {
       params = {id: params};
@@ -92,11 +90,11 @@ class SQLiteTable {
   }
 
   public get tableName():string {
-    if (!this._tableName) {
-      logError('tableName is not specified');
-      throw new Error('tableName is not specified');
-    }
-    return this._tableName;
+    throw new Error('tableName is not specified, override public get tableName():string method');
+  }
+
+  public get db():sqlite3.Database {
+    return this._db;
   }
 
 }
