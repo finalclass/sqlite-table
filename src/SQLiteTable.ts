@@ -8,6 +8,8 @@ var logError = debug('sqlite-table:error');
 
 class SQLiteTable {
 
+  public tableName:string;
+
   constructor(private _db:sqlite3.Database) {
     
   }
@@ -34,17 +36,25 @@ class SQLiteTable {
     this.db.get(stmt.sql, stmt.objVars, next);
   }
 
-  public insert(data:any, next:(err?:Error)=>void):void {
+  public insert(data:any, next:(err?:Error, id?:string)=>void):void {
     log('insert', data);
+
+    if (data.id) {
+      delete data.id;
+    }
+
     var keys:string[] = Object.keys(data);
     var keysVars:string[] = keys.map((key:string):string => '$' + key);
     var objVars:any = this.getObjVars(data);
 
-    var sql:string = 'INSERT INTO ' + this.tableName
+    var sql:string = 'INSERT INTO ' + this.getTableName()
       + '(' + keys.join(',') + ') '
       + 'VALUES(' + keysVars.join(',') + ')';
 
-    this.db.run(sql, objVars, next);
+    this.db.run(sql, objVars, function (err):void {
+      data.id = this.lastID;
+      next(err, data.id);
+    });
   }
 
   public update(data:any, next:(err?:Error)=>void):void {
@@ -60,7 +70,7 @@ class SQLiteTable {
     });
     var objVars:any = this.getObjVars(data);
 
-    var sql:string = 'UPDATE ' + this.tableName
+    var sql:string = 'UPDATE ' + this.getTableName()
       + ' SET ' + updateStmts.join(' , ')
       + ' WHERE id=$id';
 
@@ -84,13 +94,16 @@ class SQLiteTable {
     var where:string = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';
 
     return {
-      sql: 'SELECT * FROM ' + this.tableName + where,
+      sql: 'SELECT * FROM ' + this.getTableName() + where,
       objVars: objVars
     };
   }
 
-  public get tableName():string {
-    throw new Error('tableName is not specified, override public get tableName():string method');
+  public getTableName():string {
+    if (!this.tableName) {
+      throw new Error('tableName is not specified, override public get tableName():string method');
+    }
+    return this.tableName;
   }
 
   public get db():sqlite3.Database {

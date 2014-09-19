@@ -17,10 +17,14 @@ describe('SQLiteTable', function () {
         next(err);
       } else {
         table = new SQLiteTable(db);
-        table._tableName = 'user';
+        table.tableName = 'user';
         next();
       }
     });
+  });
+
+  afterEach(function () {
+    db.close();
   });
 
   it('insert', function (next) {
@@ -31,6 +35,14 @@ describe('SQLiteTable', function () {
         expect(result).not.toBeFalsy();
         next();
       });
+    });
+  });
+
+  it('insert sets the id', function (next) {
+    var user = {firstName: 'Jan', lastName: 'Kowalski'};
+    table.insert(user, function (err, id) {
+      expect(user.id).toBeDefined();
+      next();
     });
   });
 

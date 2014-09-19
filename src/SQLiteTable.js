@@ -30,15 +30,23 @@ var SQLiteTable = (function () {
 
     SQLiteTable.prototype.insert = function (data, next) {
         log('insert', data);
+
+        if (data.id) {
+            delete data.id;
+        }
+
         var keys = Object.keys(data);
         var keysVars = keys.map(function (key) {
             return '$' + key;
         });
         var objVars = this.getObjVars(data);
 
-        var sql = 'INSERT INTO ' + this.tableName + '(' + keys.join(',') + ') ' + 'VALUES(' + keysVars.join(',') + ')';
+        var sql = 'INSERT INTO ' + this.getTableName() + '(' + keys.join(',') + ') ' + 'VALUES(' + keysVars.join(',') + ')';
 
-        this.db.run(sql, objVars, next);
+        this.db.run(sql, objVars, function (err) {
+            data.id = this.lastID;
+            next(err, data.id);
+        });
     };
 
     SQLiteTable.prototype.update = function (data, next) {
@@ -54,7 +62,7 @@ var SQLiteTable = (function () {
         });
         var objVars = this.getObjVars(data);
 
-        var sql = 'UPDATE ' + this.tableName + ' SET ' + updateStmts.join(' , ') + ' WHERE id=$id';
+        var sql = 'UPDATE ' + this.getTableName() + ' SET ' + updateStmts.join(' , ') + ' WHERE id=$id';
 
         this.db.run(sql, objVars, next);
     };
@@ -77,18 +85,17 @@ var SQLiteTable = (function () {
         var where = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';
 
         return {
-            sql: 'SELECT * FROM ' + this.tableName + where,
+            sql: 'SELECT * FROM ' + this.getTableName() + where,
             objVars: objVars
         };
     };
 
-    Object.defineProperty(SQLiteTable.prototype, "tableName", {
-        get: function () {
+    SQLiteTable.prototype.getTableName = function () {
+        if (!this.tableName) {
             throw new Error('tableName is not specified, override public get tableName():string method');
-        },
-        enumerable: true,
-        configurable: true
-    });
+        }
+        return this.tableName;
+    };
 
     Object.defineProperty(SQLiteTable.prototype, "db", {
         get: function () {
