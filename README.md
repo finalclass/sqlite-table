@@ -99,3 +99,7 @@ public remove(id:string, next:(err?:Error)=>void):void;
 ```
 
 Removes record by id.
+
+## LICENSE: ISC
+
+ISC license is even simpler MIT like license. Check out the LICENSE file.
