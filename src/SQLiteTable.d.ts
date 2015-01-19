@@ -1,10 +1,6 @@
-/// <reference path="../sqlite3/sqlite3.d.ts"/>
-
-declare module "sqlite-table" {
-
-  import sqlite3 = require('sqlite3');
-
-  class SQLiteTable {
+/// <reference path="../typings/tsd.d.ts" />
+import sqlite3 = require('sqlite3');
+declare class SQLiteTable {
     private _db;
     tableName: string;
     constructor(_db: sqlite3.Database);
@@ -12,8 +8,8 @@ declare module "sqlite-table" {
     all(next: (err: Error, result?: any[]) => void): void;
     all(params: any, next?: (err: Error, result?: any[]) => void): void;
     allLimited(where?: any, limit?: {
-      limit: number;
-      offset: number;
+        limit: number;
+        offset: number;
     }, next?: (err?: Error, result?: any[]) => void): void;
     private joinMany(records, next);
     find(params: string, next: (err: Error, result?: any) => void): void;
@@ -25,7 +21,5 @@ declare module "sqlite-table" {
     private getSQLSelectStmt(params, limit?);
     getTableName(): string;
     db: sqlite3.Database;
-  }
-
-  export = SQLiteTable;
 }
+export = SQLiteTable;

@@ -23,6 +23,19 @@ var SQLiteTable = (function () {
             _this.joinMany(records, next);
         });
     };
+    SQLiteTable.prototype.allLimited = function (where, limit, next) {
+        var _this = this;
+        if (limit === void 0) { limit = { limit: 1000, offset: 0 }; }
+        if (next === void 0) { next = function () {
+        }; }
+        log('get allLimited', where, limit);
+        var stmt = this.getSQLSelectStmt(where, limit);
+        this.db.all(stmt.sql, stmt.objVars, function (err, records) {
+            if (err)
+                return next(err);
+            _this.joinMany(records, next);
+        });
+    };
     SQLiteTable.prototype.joinMany = function (records, next) {
         var _this = this;
         var joined = [];
@@ -93,12 +106,19 @@ var SQLiteTable = (function () {
         });
         return objVars;
     };
-    SQLiteTable.prototype.getSQLSelectStmt = function (params) {
+    SQLiteTable.prototype.getSQLSelectStmt = function (params, limit) {
         var objVars = this.getObjVars(params);
         var whereStmts = Object.keys(params).map(function (key) { return key + '=$' + key; });
         var where = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';
+        var limitSQL = '';
+        if (limit) {
+            limitSQL += ' LIMIT ' + parseInt(limit.limit).toString();
+            if (limit.offset) {
+                limitSQL += ' OFFSET ' + parseInt(limit.offset).toString();
+            }
+        }
         return {
-            sql: 'SELECT * FROM ' + this.getTableName() + where,
+            sql: 'SELECT * FROM ' + this.getTableName() + where + limitSQL,
             objVars: objVars
         };
     };
@@ -118,3 +138,4 @@ var SQLiteTable = (function () {
     return SQLiteTable;
 })();
 module.exports = SQLiteTable;
+//# sourceMappingURL=SQLiteTable.js.map

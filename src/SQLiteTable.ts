@@ -19,6 +19,7 @@ class SQLiteTable {
   }
 
   public all(next:(err:Error, result?:any[])=>void):void;
+  public all(params:any, next?:(err:Error, result?:any[])=>void):void;
   public all(params?:any, next?:(err:Error, result?:any[])=>void):void {
     if (typeof params === 'function') {
       next = params;
@@ -26,6 +27,17 @@ class SQLiteTable {
     }
     log('get all', params);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(params);
+    this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
+      if (err) return next(err);
+      this.joinMany(records, next);
+    });
+  }
+
+  public allLimited(where?:any,
+                    limit:{limit:number;offset:number} = {limit: 1000, offset: 0},
+                    next:(err?:Error, result?:any[])=>void = ()=>{}):void {
+    log('get allLimited', where, limit);
+    var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(where, limit);
     this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
       if (err) return next(err);
       this.joinMany(records, next);
@@ -49,6 +61,7 @@ class SQLiteTable {
   }
 
   public find(params:string, next:(err:Error, result?:any)=>void):void;
+  public find(params:any, next:(err:Error, result?:any)=>void):void;
   public find(params:any, next:(err:Error, result?:any)=>void):void {
     var typeofParams:string = typeof params;
     if (typeofParams === 'string' || typeofParams === 'number') {
@@ -119,14 +132,22 @@ class SQLiteTable {
     return objVars;
   }
 
-  private getSQLSelectStmt(params:any):{sql:string; objVars:any} {
+  private getSQLSelectStmt(params:any, limit?:{limit:number;offset:number}):{sql:string; objVars:any} {
     var objVars:any = this.getObjVars(params);
     var whereStmts:string[] = Object.keys(params)
       .map((key:string):string => key + '=$' + key);
     var where:string = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';
+    var limitSQL:string = '';
+
+    if (limit) {
+      limitSQL += ' LIMIT ' + parseInt(<any>limit.limit).toString();
+      if (limit.offset) {
+        limitSQL += ' OFFSET ' + parseInt(<any>limit.offset).toString();
+      }
+    }
 
     return {
-      sql: 'SELECT * FROM ' + this.getTableName() + where,
+      sql: 'SELECT * FROM ' + this.getTableName() + where + limitSQL,
       objVars: objVars
     };
   }

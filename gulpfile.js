@@ -7,7 +7,9 @@ gulp.task('ts', function () {
   return gulp.src('src/**/*.ts')
     .pipe(tsc({
       module: 'commonjs',
-      target: 'ES5'
+      target: 'ES5',
+      sourcemap: true,
+      declaration: true
     }))
     .pipe(gulp.dest('src'));
 });
