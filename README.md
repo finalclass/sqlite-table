@@ -100,6 +100,10 @@ public remove(id:string, next:(err?:Error)=>void):void;
 
 Removes record by id.
 
+## Joins
+
+If you want to do something with the record before retrieving it by `find` or `all` methods then you can implement the `joins(record:any, done:(err:Error, record?:any)=>void):void` method.
+
 ## LICENSE: ISC
 
 ISC license is even simpler MIT like license. Check out the LICENSE file.
