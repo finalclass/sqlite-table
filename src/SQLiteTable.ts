@@ -80,6 +80,7 @@ class SQLiteTable {
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(params);
     this.db.get(stmt.sql, stmt.objVars, (err:Error, record:any):void => {
       if (err) return next(err);
+      if (!record) return next(null);
       this.joins(record, next);
     });
   }

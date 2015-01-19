@@ -72,6 +72,8 @@ var SQLiteTable = (function () {
         this.db.get(stmt.sql, stmt.objVars, function (err, record) {
             if (err)
                 return next(err);
+            if (!record)
+                return next(null);
             _this.joins(record, next);
         });
     };
