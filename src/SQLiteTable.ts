@@ -1,4 +1,4 @@
-/// <reference path="../../login-server/src/typings/tsd.d.ts"/>
+/// <reference path="../typings/tsd.d.ts"/>
 
 import sqlite3 = require('sqlite3');
 import debug = require('debug');
@@ -11,29 +11,55 @@ class SQLiteTable {
   public tableName:string;
 
   constructor(private _db:sqlite3.Database) {
-    
+
   }
 
-  public all(next:(err:Error, result:any[])=>void):void;
-  public all(params?:any, next?:(err:Error, result:any[])=>void):void {
+  public joins(record:any, done:(err:Error, record:any)=>void):void {
+    done(null, record);
+  }
+
+  public all(next:(err:Error, result?:any[])=>void):void;
+  public all(params?:any, next?:(err:Error, result?:any[])=>void):void {
     if (typeof params === 'function') {
       next = params;
       params = {};
     }
     log('get all', params);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(params);
-    this.db.all(stmt.sql, stmt.objVars, next);
+    this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
+      if (err) return next(err);
+      this.joinMany(records, next);
+    });
   }
 
-  public find(params:string, next:(err:Error, result:any)=>void):void;
-  public find(params:any, next:(err:Error, result:any)=>void):void {
+  private joinMany(records:any[], next:(err:Error, results?:any[])=>void):void {
+    var joined = [];
+
+    records.forEach((r) => {
+      this.joins(r, (err:Error, j):void => {
+        if (err) {
+          return next(err);
+        }
+        joined.push(j);
+        if (joined.length === records.length) {
+          next(null, joined);
+        }
+      });
+    });
+  }
+
+  public find(params:string, next:(err:Error, result?:any)=>void):void;
+  public find(params:any, next:(err:Error, result?:any)=>void):void {
     var typeofParams:string = typeof params;
     if (typeofParams === 'string' || typeofParams === 'number') {
       params = {id: params};
     }
     log('find', params);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(params);
-    this.db.get(stmt.sql, stmt.objVars, next);
+    this.db.get(stmt.sql, stmt.objVars, (err:Error, record:any):void => {
+      if (err) return next(err);
+      this.joins(record, next);
+    });
   }
 
   public insert(data:any, next:(err?:Error, id?:string)=>void):void {
