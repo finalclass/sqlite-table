@@ -68,6 +68,12 @@ userTable.all({firstName: 'Szymon'}, function (err, users) {
 
 ### limited get many records
 
+```ts
+public allLimited(where?:any,
+                  limit:{limit:number;offset:number} = {limit: 1000, offset: 0},
+                  next:(err?:Error, result?:any[])=>void = ()=> {}):void;
+```
+
 ```js
 var db = new sqlite3.Database(':memory:');
 var userTable = new UserTable(db);
@@ -75,6 +81,12 @@ var userTable = new UserTable(db);
 userTable.allLimited({firstName: 'Szymon'}, {limit: 3, offset: 2}, function (err, users) {
   /// users is an array of all the users with first name Szymon.
 });
+```
+
+### count
+
+```ts
+public count(where:any = {}, next:(err?:Error, count?:number)=>void = ()=>{}):void;
 ```
 
 ### get one record

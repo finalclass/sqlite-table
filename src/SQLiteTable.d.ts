@@ -7,6 +7,7 @@ declare class SQLiteTable {
     joins(record: any, done: (err: Error, record: any) => void): void;
     all(next: (err: Error, result?: any[]) => void): void;
     all(params: any, next?: (err: Error, result?: any[]) => void): void;
+    count(where?: any, next?: (err?: Error, count?: number) => void): void;
     allLimited(where?: any, limit?: {
         limit: number;
         offset: number;
@@ -18,7 +19,7 @@ declare class SQLiteTable {
     update(data: any, next: (err?: Error) => void): void;
     remove(id: string, next: (err?: Error, isSuccess?: boolean) => void): void;
     private getObjVars(obj);
-    private getSQLSelectStmt(params, limit?);
+    private getSQLSelectStmt(params, limit?, select?);
     getTableName(): string;
     db: sqlite3.Database;
 }

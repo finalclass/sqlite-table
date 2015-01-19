@@ -23,6 +23,16 @@ var SQLiteTable = (function () {
             _this.joinMany(records, next);
         });
     };
+    SQLiteTable.prototype.count = function (where, next) {
+        if (where === void 0) { where = {}; }
+        if (next === void 0) { next = function () {
+        }; }
+        log('get count', where);
+        var stmt = this.getSQLSelectStmt(where, null, 'COUNT(id) as c');
+        this.db.get(stmt.sql, stmt.objVars, function (err, record) {
+            next(err, parseInt(record.c));
+        });
+    };
     SQLiteTable.prototype.allLimited = function (where, limit, next) {
         var _this = this;
         if (limit === void 0) { limit = { limit: 1000, offset: 0 }; }
@@ -106,7 +116,8 @@ var SQLiteTable = (function () {
         });
         return objVars;
     };
-    SQLiteTable.prototype.getSQLSelectStmt = function (params, limit) {
+    SQLiteTable.prototype.getSQLSelectStmt = function (params, limit, select) {
+        if (select === void 0) { select = '*'; }
         var objVars = this.getObjVars(params);
         var whereStmts = Object.keys(params).map(function (key) { return key + '=$' + key; });
         var where = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';
@@ -118,7 +129,7 @@ var SQLiteTable = (function () {
             }
         }
         return {
-            sql: 'SELECT * FROM ' + this.getTableName() + where + limitSQL,
+            sql: 'SELECT ' + select + ' FROM ' + this.getTableName() + where + limitSQL,
             objVars: objVars
         };
     };

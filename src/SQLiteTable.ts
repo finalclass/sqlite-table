@@ -33,9 +33,18 @@ class SQLiteTable {
     });
   }
 
+  public count(where:any = {}, next:(err?:Error, count?:number)=>void = ()=>{}):void {
+    log('get count', where);
+    var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(where, null, 'COUNT(id) as c');
+    this.db.get(stmt.sql, stmt.objVars, (err:Error, record:any):void => {
+      next(err, parseInt(record.c));
+    });
+  }
+
   public allLimited(where?:any,
                     limit:{limit:number;offset:number} = {limit: 1000, offset: 0},
-                    next:(err?:Error, result?:any[])=>void = ()=>{}):void {
+                    next:(err?:Error, result?:any[])=>void = ()=> {
+                    }):void {
     log('get allLimited', where, limit);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(where, limit);
     this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
@@ -132,7 +141,7 @@ class SQLiteTable {
     return objVars;
   }
 
-  private getSQLSelectStmt(params:any, limit?:{limit:number;offset:number}):{sql:string; objVars:any} {
+  private getSQLSelectStmt(params:any, limit?:{limit:number;offset:number}, select = '*'):{sql:string; objVars:any} {
     var objVars:any = this.getObjVars(params);
     var whereStmts:string[] = Object.keys(params)
       .map((key:string):string => key + '=$' + key);
@@ -147,7 +156,7 @@ class SQLiteTable {
     }
 
     return {
-      sql: 'SELECT * FROM ' + this.getTableName() + where + limitSQL,
+      sql: 'SELECT ' + select + ' FROM ' + this.getTableName() + where + limitSQL,
       objVars: objVars
     };
   }
