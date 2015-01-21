@@ -56,6 +56,10 @@ class SQLiteTable {
   private joinMany(records:any[], next:(err:Error, results?:any[])=>void):void {
     var joined = [];
 
+    if (records.length === 0) {
+      return next(null, records);
+    }
+
     records.forEach((r) => {
       this.joins(r, (err:Error, j):void => {
         if (err) {

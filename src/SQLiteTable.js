@@ -49,6 +49,9 @@ var SQLiteTable = (function () {
     SQLiteTable.prototype.joinMany = function (records, next) {
         var _this = this;
         var joined = [];
+        if (records.length === 0) {
+            return next(null, records);
+        }
         records.forEach(function (r) {
             _this.joins(r, function (err, j) {
                 if (err) {
