@@ -89,6 +89,16 @@ userTable.allLimited({firstName: 'Szymon'}, {limit: 3, offset: 2}, function (err
 public count(where:any = {}, next:(err?:Error, count?:number)=>void = ()=>{}):void;
 ```
 
+### save
+
+```ts
+public save(data:any, next:(err?:Error, record?:any)=>void):void;
+```
+
+if `data.id` is set then `update` method is invoked, otherwise `insert`. `next` callback receive
+the saved record as a recult.
+
+
 ### get one record
 
 ```ts

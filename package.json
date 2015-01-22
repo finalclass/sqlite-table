@@ -1,6 +1,6 @@
 {
   "name": "sqlite-table",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "SQLiteTable class for sqlite3 module",
   "main": "index.js",
   "scripts": {

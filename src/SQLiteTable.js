@@ -94,6 +94,14 @@ var SQLiteTable = (function () {
             next(err, data.id);
         });
     };
+    SQLiteTable.prototype.save = function (data, next) {
+        if (data.id) {
+            this.update(data, function (err) { return next(err, data); });
+        }
+        else {
+            this.insert(data, function (err) { return next(err, data); });
+        }
+    };
     SQLiteTable.prototype.update = function (data, next) {
         log('update', data);
         if (!data.id) {

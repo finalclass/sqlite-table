@@ -20,6 +20,7 @@ declare module "sqlite-table" {
     find(params: string, next: (err: Error, result?: any) => void): void;
     find(params: any, next: (err: Error, result?: any) => void): void;
     insert(data: any, next: (err?: Error, id?: string) => void): void;
+    save(data: any, next: (err?: Error, record?: any) => void): void;
     update(data: any, next: (err?: Error) => void): void;
     remove(id: string, next: (err?: Error, isSuccess?: boolean) => void): void;
     private getObjVars(obj);

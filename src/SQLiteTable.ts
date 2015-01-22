@@ -110,6 +110,14 @@ class SQLiteTable {
     });
   }
 
+  public save(data:any, next:(err?:Error, record?:any)=>void):void {
+    if (data.id) {
+      this.update(data, (err:Error) => next(err, data));
+    } else {
+      this.insert(data, (err:Error) => next(err, data));
+    }
+  }
+
   public update(data:any, next:(err?:Error)=>void):void {
     log('update', data);
     if (!data.id) {
