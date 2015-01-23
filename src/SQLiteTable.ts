@@ -18,10 +18,11 @@ class SQLiteTable {
     done(null, record);
   }
 
-  public all(next:(err:Error, result?:any[])=>void):void;
-  public all(params:any, next?:(err:Error, result?:any[])=>void):void;
-  public all(params?:any, next?:(err:Error, result?:any[])=>void):void {
+  public all(next:(err:Error, result?:any[])=>void, eager?:boolean):void;
+  public all(params:any, next?:(err:Error, result?:any[])=>void, eager?:boolean):void;
+  public all(params?:any, next?:any, eager = true):void {
     if (typeof params === 'function') {
+      eager = !!next;
       next = params;
       params = {};
     }
@@ -29,7 +30,11 @@ class SQLiteTable {
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(params);
     this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
       if (err) return next(err);
-      this.joinMany(records, next);
+      if (eager) {
+        this.joinMany(records, next);
+      } else {
+        next(null, records);
+      }
     });
   }
 
@@ -43,17 +48,20 @@ class SQLiteTable {
 
   public allLimited(where?:any,
                     limit:{limit:number;offset:number} = {limit: 1000, offset: 0},
-                    next:(err?:Error, result?:any[])=>void = ()=> {
-                    }):void {
+                    next:(err?:Error, result?:any[])=>void = ()=> {}, eager = true):void {
     log('get allLimited', where, limit);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(where, limit);
     this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
       if (err) return next(err);
-      this.joinMany(records, next);
+      if (eager) {
+        this.joinMany(records, next);
+      } else {
+        next(null, records);
+      }
     });
   }
 
-  private joinMany(records:any[], next:(err:Error, results?:any[])=>void):void {
+  public joinMany(records:any[], next:(err:Error, results?:any[])=>void):void {
     var joined = [];
 
     if (records.length === 0) {
@@ -73,9 +81,9 @@ class SQLiteTable {
     });
   }
 
-  public find(params:string, next:(err:Error, result?:any)=>void):void;
-  public find(params:any, next:(err:Error, result?:any)=>void):void;
-  public find(params:any, next:(err:Error, result?:any)=>void):void {
+  public find(params:string, next:(err:Error, result?:any)=>void, eager?:boolean):void;
+  public find(params:any, next:(err:Error, result?:any)=>void, eager?:boolean):void;
+  public find(params:any, next:(err:Error, result?:any)=>void, eager = true):void {
     var typeofParams:string = typeof params;
     if (typeofParams === 'string' || typeofParams === 'number') {
       params = {id: params};
@@ -85,7 +93,11 @@ class SQLiteTable {
     this.db.get(stmt.sql, stmt.objVars, (err:Error, record:any):void => {
       if (err) return next(err);
       if (!record) return next(null);
-      this.joins(record, next);
+      if (eager) {
+        this.joins(record, next);
+      } else {
+        next(null, record);
+      }
     });
   }
 

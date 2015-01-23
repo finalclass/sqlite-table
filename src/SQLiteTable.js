@@ -9,9 +9,11 @@ var SQLiteTable = (function () {
     SQLiteTable.prototype.joins = function (record, done) {
         done(null, record);
     };
-    SQLiteTable.prototype.all = function (params, next) {
+    SQLiteTable.prototype.all = function (params, next, eager) {
         var _this = this;
+        if (eager === void 0) { eager = true; }
         if (typeof params === 'function') {
+            eager = !!next;
             next = params;
             params = {};
         }
@@ -20,7 +22,12 @@ var SQLiteTable = (function () {
         this.db.all(stmt.sql, stmt.objVars, function (err, records) {
             if (err)
                 return next(err);
-            _this.joinMany(records, next);
+            if (eager) {
+                _this.joinMany(records, next);
+            }
+            else {
+                next(null, records);
+            }
         });
     };
     SQLiteTable.prototype.count = function (where, next) {
@@ -33,17 +40,23 @@ var SQLiteTable = (function () {
             next(err, parseInt(record.c));
         });
     };
-    SQLiteTable.prototype.allLimited = function (where, limit, next) {
+    SQLiteTable.prototype.allLimited = function (where, limit, next, eager) {
         var _this = this;
         if (limit === void 0) { limit = { limit: 1000, offset: 0 }; }
         if (next === void 0) { next = function () {
         }; }
+        if (eager === void 0) { eager = true; }
         log('get allLimited', where, limit);
         var stmt = this.getSQLSelectStmt(where, limit);
         this.db.all(stmt.sql, stmt.objVars, function (err, records) {
             if (err)
                 return next(err);
-            _this.joinMany(records, next);
+            if (eager) {
+                _this.joinMany(records, next);
+            }
+            else {
+                next(null, records);
+            }
         });
     };
     SQLiteTable.prototype.joinMany = function (records, next) {
@@ -64,8 +77,9 @@ var SQLiteTable = (function () {
             });
         });
     };
-    SQLiteTable.prototype.find = function (params, next) {
+    SQLiteTable.prototype.find = function (params, next, eager) {
         var _this = this;
+        if (eager === void 0) { eager = true; }
         var typeofParams = typeof params;
         if (typeofParams === 'string' || typeofParams === 'number') {
             params = { id: params };
@@ -77,7 +91,12 @@ var SQLiteTable = (function () {
                 return next(err);
             if (!record)
                 return next(null);
-            _this.joins(record, next);
+            if (eager) {
+                _this.joins(record, next);
+            }
+            else {
+                next(null, record);
+            }
         });
     };
     SQLiteTable.prototype.insert = function (data, next) {
