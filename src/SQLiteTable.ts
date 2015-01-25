@@ -40,8 +40,8 @@ class SQLiteTable {
 
   public count(where:any = {}, next:(err?:Error, count?:number)=>void = ()=> {
   }):void {
-    log('get count', where);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(where, null, 'COUNT(id) as c');
+    log('get count', stmt);
     this.db.get(stmt.sql, stmt.objVars, (err:Error, record:any):void => {
       next(err, parseInt(record.c));
     });
@@ -118,6 +118,8 @@ class SQLiteTable {
       + '(' + keys.join(',') + ') '
       + 'VALUES(' + keysVars.join(',') + ')';
 
+    log('insert', sql, objVars);
+
     this.db.run(sql, objVars, function (err):void {
       data.id = this.lastID;
       next(err, data.id);
@@ -148,12 +150,14 @@ class SQLiteTable {
     var sql:string = 'UPDATE ' + this.getTableName()
       + ' SET ' + updateStmts.join(' , ')
       + ' WHERE id=$id';
-
+    log('update', sql, objVars)
     this.db.run(sql, objVars, next);
   }
 
   public remove(id:string, next:(err?:Error, isSuccess?:boolean)=>void):void {
-    this.db.run('DELETE FROM ' + this.getTableName() + ' WHERE id=?', id, function (err) {
+    var sql = 'DELETE FROM ' + this.getTableName() + ' WHERE id=?';
+    log('remove', sql);
+    this.db.run(sql, id, function (err) {
       next(err, this.changes === 1);
     });
   }

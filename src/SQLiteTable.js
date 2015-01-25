@@ -34,8 +34,8 @@ var SQLiteTable = (function () {
         if (where === void 0) { where = {}; }
         if (next === void 0) { next = function () {
         }; }
-        log('get count', where);
         var stmt = this.getSQLSelectStmt(where, null, 'COUNT(id) as c');
+        log('get count', stmt);
         this.db.get(stmt.sql, stmt.objVars, function (err, record) {
             next(err, parseInt(record.c));
         });
@@ -108,6 +108,7 @@ var SQLiteTable = (function () {
         var keysVars = keys.map(function (key) { return '$' + key; });
         var objVars = this.getObjVars(data);
         var sql = 'INSERT INTO ' + this.getTableName() + '(' + keys.join(',') + ') ' + 'VALUES(' + keysVars.join(',') + ')';
+        log('insert', sql, objVars);
         this.db.run(sql, objVars, function (err) {
             data.id = this.lastID;
             next(err, data.id);
@@ -134,10 +135,13 @@ var SQLiteTable = (function () {
         });
         var objVars = this.getObjVars(data);
         var sql = 'UPDATE ' + this.getTableName() + ' SET ' + updateStmts.join(' , ') + ' WHERE id=$id';
+        log('update', sql, objVars);
         this.db.run(sql, objVars, next);
     };
     SQLiteTable.prototype.remove = function (id, next) {
-        this.db.run('DELETE FROM ' + this.getTableName() + ' WHERE id=?', id, function (err) {
+        var sql = 'DELETE FROM ' + this.getTableName() + ' WHERE id=?';
+        log('remove', sql);
+        this.db.run(sql, id, function (err) {
             next(err, this.changes === 1);
         });
     };
