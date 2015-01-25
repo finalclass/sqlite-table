@@ -144,14 +144,17 @@ var SQLiteTable = (function () {
     SQLiteTable.prototype.getObjVars = function (obj) {
         var objVars = {};
         Object.keys(obj).forEach(function (key) {
-            objVars['$' + key] = obj[key];
+            objVars['$' + key] = obj[key] instanceof Array ? obj[key][1] : obj[key];
         });
         return objVars;
     };
     SQLiteTable.prototype.getSQLSelectStmt = function (params, limit, select) {
         if (select === void 0) { select = '*'; }
         var objVars = this.getObjVars(params);
-        var whereStmts = Object.keys(params).map(function (key) { return key + '=$' + key; });
+        var whereStmts = Object.keys(params).map(function (key) {
+            var sign = params[key] instanceof Array ? params[key][0] : '=';
+            return key + sign + '$' + key;
+        });
         var where = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';
         var limitSQL = '';
         if (limit) {
