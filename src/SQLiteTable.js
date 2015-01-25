@@ -17,8 +17,8 @@ var SQLiteTable = (function () {
             next = params;
             params = {};
         }
-        log('get all', params);
         var stmt = this.getSQLSelectStmt(params);
+        log('get all', stmt);
         this.db.all(stmt.sql, stmt.objVars, function (err, records) {
             if (err)
                 return next(err);
@@ -46,8 +46,8 @@ var SQLiteTable = (function () {
         if (next === void 0) { next = function () {
         }; }
         if (eager === void 0) { eager = true; }
-        log('get allLimited', where, limit);
         var stmt = this.getSQLSelectStmt(where, limit);
+        log('get allLimited', stmt);
         this.db.all(stmt.sql, stmt.objVars, function (err, records) {
             if (err)
                 return next(err);
@@ -84,8 +84,8 @@ var SQLiteTable = (function () {
         if (typeofParams === 'string' || typeofParams === 'number') {
             params = { id: params };
         }
-        log('find', params);
         var stmt = this.getSQLSelectStmt(params);
+        log('find', stmt);
         this.db.get(stmt.sql, stmt.objVars, function (err, record) {
             if (err)
                 return next(err);
@@ -144,7 +144,7 @@ var SQLiteTable = (function () {
     SQLiteTable.prototype.getObjVars = function (obj) {
         var objVars = {};
         Object.keys(obj).forEach(function (key) {
-            objVars['$' + key] = obj[key] instanceof Array ? obj[key][1] : obj[key];
+            objVars['$' + key] = Array.isArray(obj[key]) ? obj[key][1] : obj[key];
         });
         return objVars;
     };
@@ -152,7 +152,7 @@ var SQLiteTable = (function () {
         if (select === void 0) { select = '*'; }
         var objVars = this.getObjVars(params);
         var whereStmts = Object.keys(params).map(function (key) {
-            var sign = params[key] instanceof Array ? params[key][0] : '=';
+            var sign = Array.isArray(params[key]) ? params[key][0] : '=';
             return key + sign + '$' + key;
         });
         var where = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';

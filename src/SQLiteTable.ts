@@ -26,8 +26,8 @@ class SQLiteTable {
       next = params;
       params = {};
     }
-    log('get all', params);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(params);
+    log('get all', stmt);
     this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
       if (err) return next(err);
       if (eager) {
@@ -51,8 +51,8 @@ class SQLiteTable {
                     limit:{limit:number;offset:number} = {limit: 1000, offset: 0},
                     next:(err?:Error, result?:any[])=>void = ()=> {
                     }, eager = true):void {
-    log('get allLimited', where, limit);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(where, limit);
+    log('get allLimited', stmt);
     this.db.all(stmt.sql, stmt.objVars, (err:Error, records:any[]):void => {
       if (err) return next(err);
       if (eager) {
@@ -90,8 +90,8 @@ class SQLiteTable {
     if (typeofParams === 'string' || typeofParams === 'number') {
       params = {id: params};
     }
-    log('find', params);
     var stmt:{sql:string;objVars:any} = this.getSQLSelectStmt(params);
+    log('find', stmt);
     this.db.get(stmt.sql, stmt.objVars, (err:Error, record:any):void => {
       if (err) return next(err);
       if (!record) return next(null);
@@ -162,7 +162,7 @@ class SQLiteTable {
     var objVars:any = {};
 
     Object.keys(obj).forEach((key:string):void => {
-      objVars['$' + key] = obj[key] instanceof Array ? obj[key][1] : obj[key];
+      objVars['$' + key] = Array.isArray(obj[key]) ? obj[key][1] : obj[key];
     });
 
     return objVars;
@@ -172,7 +172,7 @@ class SQLiteTable {
     var objVars:any = this.getObjVars(params);
     var whereStmts:string[] = Object.keys(params)
       .map((key:string):string => {
-        var sign = params[key] instanceof Array ? params[key][0] : '=';
+        var sign = Array.isArray(params[key]) ? params[key][0] : '=';
         return key + sign + '$' + key;
       });
     var where:string = whereStmts.length > 0 ? ' WHERE ' + whereStmts.join(' AND ') : '';
