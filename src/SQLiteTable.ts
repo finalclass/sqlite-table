@@ -18,6 +18,13 @@ class SQLiteTable {
     done(null, record);
   }
 
+  public select(params:any = {}, next?:(err:Error, result?:any[])=>void):void {
+    params.where = params.where || {};
+    params.orderBy = params.orderBy || '';
+    params.limit = params.limit || '';
+    params.join = params.join || {};
+  }
+
   public all(next:(err:Error, result?:any[])=>void, eager?:boolean):void;
   public all(params:any, next?:(err:Error, result?:any[])=>void, eager?:boolean):void;
   public all(params?:any, next?:any, eager = true):void {
